@@ -1,9 +1,96 @@
-var express = require('express');
+var express = require("express");
 var router = express.Router();
 
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
+const fetch = require("node-fetch");
+require("../models/connection");
+const User = require("../models/users");
+const { checkBody } = require("../modules/checkBody");
+const uid2 = require("uid2");
+const bcrypt = require("bcrypt");
+
+// ROUTE GET : all users in DB
+
+router.get("/", async (req, res) => {
+  try {
+    const users = await User.find();
+    res.json({ result: true, length: users.length, users: users });
+  } catch (error) {
+    res.json({
+      result: false,
+      error: "An error occurred while retrieving users",
+    });
+  }
 });
 
+// ROUTE POST : Sign-up (Admin)
+router.post("/signupadmin", (req, res) => {
+  if (!checkBody(req.body, ["username", "email", "password"])) {
+    res.json({ result: false, error: "Missing or empty fields" });
+    return;
+  }
+  // Check if the user has not already been registered
+  User.findOne({ username: req.body.username }).then((data) => {
+    if (data === null) {
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(req.body.email)) {
+        res.json({ result: false, error: 'Invalid email format' });
+        return;
+      }
+
+      const hash = bcrypt.hashSync(req.body.password, 10);
+
+      const newUser = new User({
+        username: req.body.username,
+        email: req.body.email,
+        password: hash,
+        token: uid2(32),
+        isAdmin: true,
+      });
+
+      newUser.save().then((newDoc) => {
+        res.json({ result: true, token: newDoc.token });
+      });
+    } else {
+      // User already exists in database
+      res.json({ result: false, error: "User already exists" });
+    }
+  });
+});
+
+// ROUTE POST : Sign-up (Admin)
+router.post("/signupadmin", (req, res) => {
+  if (!checkBody(req.body, ["username", "email", "password"])) {
+    res.json({ result: false, error: "Missing or empty fields" });
+    return;
+  }
+  // Check if the user has not already been registered
+  User.findOne({ username: req.body.username }).then((data) => {
+    if (data === null) {
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(req.body.email)) {
+        res.json({ result: false, error: 'Invalid email format' });
+        return;
+      }
+
+      const hash = bcrypt.hashSync(req.body.password, 10);
+
+      const newUser = new User({
+        username: req.body.username,
+        email: req.body.email,
+        password: hash,
+        token: uid2(32),
+        isAdmin: true,
+      });
+
+      newUser.save().then((newDoc) => {
+        res.json({ result: true, token: newDoc.token });
+      });
+    } else {
+      // User already exists in database
+      res.json({ result: false, error: "User already exists" });
+    }
+  });
+});
 module.exports = router;
