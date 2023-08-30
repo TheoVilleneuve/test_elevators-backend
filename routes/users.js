@@ -58,39 +58,20 @@ router.post("/signupadmin", (req, res) => {
   });
 });
 
-// ROUTE POST : Sign-up (Admin)
-router.post("/signupadmin", (req, res) => {
-  if (!checkBody(req.body, ["username", "email", "password"])) {
-    res.json({ result: false, error: "Missing or empty fields" });
+// ROUTE POST : Sign-in
+router.post('/signin', (req, res) => {
+  if (!checkBody(req.body, ['email', 'password'])) {
+    res.json({ result: false, error: 'Missing or empty fields' });
     return;
   }
-  // Check if the user has not already been registered
-  User.findOne({ username: req.body.username }).then((data) => {
-    if (data === null) {
 
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(req.body.email)) {
-        res.json({ result: false, error: 'Invalid email format' });
-        return;
-      }
-
-      const hash = bcrypt.hashSync(req.body.password, 10);
-
-      const newUser = new User({
-        username: req.body.username,
-        email: req.body.email,
-        password: hash,
-        token: uid2(32),
-        isAdmin: true,
-      });
-
-      newUser.save().then((newDoc) => {
-        res.json({ result: true, token: newDoc.token });
-      });
+  User.findOne({ email: req.body.email }).then(data => {
+    if (data && bcrypt.compareSync(req.body.password, data.password)) {
+      res.json({ result: true, username: data.username, id: data.id, token: data.token, nbOfTasks: data.tasks.length, tasks:data.tasks});
     } else {
-      // User already exists in database
-      res.json({ result: false, error: "User already exists" });
+      res.json({ result: false, error: 'User not found or wrong password' });
     }
   });
 });
+
 module.exports = router;
