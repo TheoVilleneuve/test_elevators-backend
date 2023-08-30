@@ -13,7 +13,7 @@ router.get("/", async (req, res) => {
   } catch (error) {
     res.json({
       result: false,
-      error: "An error occurred while retrieving users",
+      error: "An error occurred while retrieving history",
     });
   }
 });
