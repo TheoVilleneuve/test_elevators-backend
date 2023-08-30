@@ -38,5 +38,16 @@ router.post("/addmove/:elevatorID/:departureFloor/:arrivalFloor", async (req, re
     }
   });
 
+// ROUTE DELETE ALL : Clear history
+
+router.delete("/clear", async (req, res) => {
+  try {
+    const result = await ElevatorHistory.deleteMany({});
+    res.json({ message: "History successfully cleared", result });
+  } catch (error) {
+    res.status(500).json({ message: "Error clearing history", error });
+  }
+});
+
 
 module.exports = router;
