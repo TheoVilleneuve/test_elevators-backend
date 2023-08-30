@@ -59,19 +59,29 @@ router.post("/signupadmin", (req, res) => {
 });
 
 // ROUTE POST : Sign-in
-router.post('/signin', (req, res) => {
-  if (!checkBody(req.body, ['email', 'password'])) {
-    res.json({ result: false, error: 'Missing or empty fields' });
-    return;
-  }
+router.post('/signin', async (req, res) => {
+  try {
+    if (!checkBody(req.body, ['email', 'password'])) {
+      res.json({ result: false, error: 'Missing or empty fields' });
+      return;
+    }
 
-  User.findOne({ email: req.body.email }).then(data => {
+    const data = await User.findOne({ email: req.body.email });
+
     if (data && bcrypt.compareSync(req.body.password, data.password)) {
-      res.json({ result: true, username: data.username, id: data.id, token: data.token, nbOfTasks: data.tasks.length, tasks:data.tasks});
+      res.json({
+        result: true,
+        username: data.username,
+        id: data.id,
+        token: data.token,
+      });
     } else {
       res.json({ result: false, error: 'User not found or wrong password' });
     }
-  });
+  } catch (error) {
+    console.error('Error during sign-in:', error);
+    res.status(500).json({ result: false, error: 'An error occurred during sign-in' });
+  }
 });
 
 module.exports = router;
