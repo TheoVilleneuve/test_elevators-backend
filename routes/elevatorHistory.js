@@ -18,25 +18,30 @@ router.get("/", async (req, res) => {
   }
 });
 
-// ROUTE POST : Add a move of an elevator to the DB
+// ROUTE POST : Add a command of an elevator to the DB
 
-router.post("/addmove/:elevatorID/:departureFloor/:arrivalFloor", async (req, res) => {
+router.post(
+  "/addmove/:elevatorID/:departureFloor/:arrivalFloor",
+  async (req, res) => {
     try {
       const { elevatorID, departureFloor, arrivalFloor } = req.params;
 
       const newMovement = new ElevatorHistory({
         elevatorID,
         departureFloor: parseInt(departureFloor),
-        arrivalFloor: parseInt(arrivalFloor)
+        arrivalFloor: parseInt(arrivalFloor),
       });
-  
+
       await newMovement.save();
-  
+
       res.status(201).json({ message: "Movement added successfully" });
     } catch (error) {
-      res.status(500).json({ error: "An error occurred while adding the movement" });
+      res
+        .status(500)
+        .json({ error: "An error occurred while adding the movement" });
     }
-  });
+  }
+);
 
 // ROUTE DELETE ALL : Clear history
 
@@ -48,6 +53,5 @@ router.delete("/clear", async (req, res) => {
     res.status(500).json({ message: "Error clearing history", error });
   }
 });
-
 
 module.exports = router;

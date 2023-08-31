@@ -31,10 +31,9 @@ router.post("/signupadmin", (req, res) => {
   // Check if the user has not already been registered
   User.findOne({ username: req.body.username }).then((data) => {
     if (data === null) {
-
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(req.body.email)) {
-        res.json({ result: false, error: 'Invalid email format' });
+        res.json({ result: false, error: "Invalid email format" });
         return;
       }
 
@@ -59,10 +58,10 @@ router.post("/signupadmin", (req, res) => {
 });
 
 // ROUTE POST : Sign-in
-router.post('/signin', async (req, res) => {
+router.post("/signin", async (req, res) => {
   try {
-    if (!checkBody(req.body, ['email', 'password'])) {
-      res.json({ result: false, error: 'Missing or empty fields' });
+    if (!checkBody(req.body, ["email", "password"])) {
+      res.json({ result: false, error: "Missing or empty fields" });
       return;
     }
 
@@ -76,11 +75,13 @@ router.post('/signin', async (req, res) => {
         token: data.token,
       });
     } else {
-      res.json({ result: false, error: 'User not found or wrong password' });
+      res.json({ result: false, error: "User not found or wrong password" });
     }
   } catch (error) {
-    console.error('Error during sign-in:', error);
-    res.status(500).json({ result: false, error: 'An error occurred during sign-in' });
+    console.error("Error during sign-in:", error);
+    res
+      .status(500)
+      .json({ result: false, error: "An error occurred during sign-in" });
   }
 });
 
